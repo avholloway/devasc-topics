@@ -1,55 +1,67 @@
 #!/usr/bin/env python3
 
-# import the json module
 import json
 
-# Read in the contents of our file into a list
-with open("devasc-topics.txt", "r") as finput:
-    lines = finput.read().splitlines()
+class ExamBlueprint(object):
+    """Builds and holds an Exam Blueprint"""
 
-output = []
+    def __init__(self, filename):
+        self.blueprint = {}
+        if not filename is None:
+            self.__load_file(filename)
+            self.__build_blueprint()
 
-for line in lines:
+    def __load_file(self, filename):
+        with open(filename, "r") as finput:
+            self.file_contents = finput.read().splitlines()
+        return self
 
-    # Percentage values
-    # --------------------------------------------------------------------------
-    if "%" in line:
-        output[-1]["percentage"] = line
-        continue
+    def __build_blueprint(self):
+        for i in range(len(self.file_contents)):
+            line = self.file_contents[i]
+            if "%" in line:
+                continue
+            number, title = line.split(" ", 1)
+            self.create_section(number, title)
+            if number.endswith("0"):
+                self.add_percentage(number, self.file_contents[i+1])
+        return self
 
-    # Section headlines
-    # --------------------------------------------------------------------------
-    # E.g., "1.0 This title"
-    # E.g., "1.3.a This other title"
+    def get_file_contents(self):
+        return "\n".join(self.file_contents)
 
-    # Split into the section number and section title.
-    # E.g., "1.0 This title" => number = "1.0", title = "This title"
-    number, title = line.split(" ", 1)
+    def to_json(self, indent = None):
+        return json.dumps(self.blueprint, indent = indent)
 
-    # Create the framework for the section object
-    section = {
-        "number": number,
-        "title": title
-    }
+    def create_section(self, number, title):
+        if number and title and not number in self.blueprint.keys():
+            self.blueprint[number] = {"title":title}
+        return self
 
-    # Major Sections
-    # --------------------------------------------------------------------------
-    if number[1] == "0":
-        output.append(section)
-        continue
+    def add_percentage(self, number, percentage):
+        if number and percentage:
+            self.blueprint[number]["percentage"] = percentage
+        return self
 
-    # Sub-sections
-    # --------------------------------------------------------------------------
-    # Section numbers get split up into component parts.
-    # E.g., "1.3" => ["1", "3"]
-    # E.g., "1.3.a" => ["1", "3", "a"]
-    number = number.split(".")
+    def read_section(self, number):
+        if number and number in self.blueprint.keys():
+            return self.blueprint[number]
+        else:
+            return f"Section {number} Not Found"
 
-    # If this is our first subsection, we need to create the sections property
-    if not "sections" in output[-1].keys():
-        output[-1]["sections"] = []
+    def update_section(self, number, title):
+        if number and title and number in self.blueprint.keys():
+            self.blueprint[number] = title
+        return self
 
-    output[]["sections"].append(section)
+    def delete_section(self, number):
+        if number and number in self.blueprint.keys():
+            del self.blueprin[number]
+        return self
 
-output = json.dumps(output, indent=4)
-print(output)
+def main():
+    exam = ExamBlueprint("devasc-topics.txt")
+    print(exam.to_json(indent = 4))
+
+if __name__ == '__main__':
+    main()
