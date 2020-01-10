@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
 
-"""
-This script was a challenge put forth by Steven Davidson (sdavids5670) here:
-https://learningnetwork.cisco.com/message/751267#751267
-"""
-
 import sys
 import json
 import argparse
