@@ -1,67 +1,39 @@
 #!/usr/bin/env python3
 
+import sys
 import json
 
-class ExamBlueprint(object):
-    """Builds and holds an Exam Blueprint"""
+if len(sys.argv) < 2:
+    print("Please feed me a file to digest.")
+    sys.exit(1)
 
-    def __init__(self, filename):
-        self.blueprint = {}
-        if not filename is None:
-            self.__load_file(filename)
-            self.__build_blueprint()
+filename = sys.argv[-1]
 
-    def __load_file(self, filename):
-        with open(filename, "r") as finput:
-            self.file_contents = finput.read().splitlines()
-        return self
+try:
+    with open(filename, "r") as finput:
+        file_contents = finput.read().splitlines()
+except FileNotFoundError:
+    print("Please feed me a valid file to digest.")
+    sys.exit(2)
 
-    def __build_blueprint(self):
-        for i in range(len(self.file_contents)):
-            line = self.file_contents[i]
-            if "%" in line:
-                continue
-            number, title = line.split(" ", 1)
-            self.create_section(number, title)
-            if number.endswith("0"):
-                self.add_percentage(number, self.file_contents[i+1])
-        return self
+if len(file_contents) == 0:
+    print("Please feed me a filled file to digest.")
+    sys.exit(3)
 
-    def get_file_contents(self):
-        return "\n".join(self.file_contents)
+sections = {}
 
-    def to_json(self, indent = None):
-        return json.dumps(self.blueprint, indent = indent)
+for i in range(len(file_contents)):
+    line = file_contents[i]
+    if "%" in line:
+        continue
+    number, title = line.split(" ", 1)
+    if not number in sections.keys():
+        sections[number] = {"title":title}
+    if number.endswith(".0"):
+        sections[number]["percentage"] = file_contents[i+1]
 
-    def create_section(self, number, title):
-        if number and title and not number in self.blueprint.keys():
-            self.blueprint[number] = {"title":title}
-        return self
+blueprint = {"sections":sections}
 
-    def add_percentage(self, number, percentage):
-        if number and percentage:
-            self.blueprint[number]["percentage"] = percentage
-        return self
+print(json.dumps(blueprint, indent = 4))
 
-    def read_section(self, number):
-        if number and number in self.blueprint.keys():
-            return self.blueprint[number]
-        else:
-            return f"Section {number} Not Found"
-
-    def update_section(self, number, title):
-        if number and title and number in self.blueprint.keys():
-            self.blueprint[number] = title
-        return self
-
-    def delete_section(self, number):
-        if number and number in self.blueprint.keys():
-            del self.blueprin[number]
-        return self
-
-def main():
-    exam = ExamBlueprint("devasc-topics.txt")
-    print(exam.to_json(indent = 4))
-
-if __name__ == '__main__':
-    main()
+sys.exit(0)
