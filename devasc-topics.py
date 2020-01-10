@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 
+"""
+Here's what we're going to do:
+
+1. Check the command line options to make sure they're all good
+2. Check that we can open the file and that it has atleast some content in it
+3. Loop over the lines in the file, parsing out the section numbers, titles, and in some cases the percentage values
+4. Create a python dictionary out of the contents of the file_contents
+5. Print the dictionary in the content type the output is to be displayed in (command line argument)
+"""
+
 import sys
 import json
 import argparse
