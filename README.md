@@ -5,7 +5,7 @@ I made a design decision to keep the structure kind of flat, since the heirarchy
 
 I much rather do something like this:
 
-   print(section["1.8.a"])
+    print(section["1.8.a"])
 
 Than this:
 
